@@ -1,0 +1,30 @@
+{
+  "name": "trustseco-cosy",
+  "version": "1.0.0",
+  "description": "The coordination system for the TrustSECO project.",
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "tsc && node dist/app.js",
+    "lint": "eslint . --ext .ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Fides-UU/TrustSECO-CoSy.git"
+  },
+  "author": "Fides",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Fides-UU/TrustSECO-CoSy/issues"
+  },
+  "homepage": "https://github.com/Fides-UU/TrustSECO-CoSy#readme",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.16.0",
+    "@typescript-eslint/parser": "^5.16.0",
+    "eslint": "^8.11.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-vue": "^8.5.0",
+    "typescript": "^4.6.2"
+  }
+}
