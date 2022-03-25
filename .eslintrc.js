@@ -4,7 +4,6 @@ module.exports = {
     es2021: true,
   },
   extends: [
-    'plugin:vue/essential',
     'airbnb-base',
   ],
   parserOptions: {
