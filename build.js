@@ -7,9 +7,16 @@ require('dotenv')
 const owner = 'Fides-UU';
 const repo = 'TrustSECO-Portal';
 const directory = 'public';
+const githubToken = process.env.GITHUB_API_TOKEN;
+
+if (!githubToken) {
+  console.log('No GITHUB_API_TOKEN was found in your .env file, please add it and retry.')
+  return false;
+}
+
 const instance = axios.create({
   headers: {
-    Authorization: `token ${process.env.GITHUB_API_TOKEN}`,
+    Authorization: `token ${githubToken}`,
   },
 });
 
