@@ -1,6 +1,0 @@
-[submodule "TrustSECO-Portal"]
-	path = TrustSECO-Portal
-	url = git@github.com:Fides-UU/TrustSECO-Portal.git
-[submodule "portal"]
-	path = portal
-	url = git@github.com:Fides-UU/TrustSECO-Portal.git
