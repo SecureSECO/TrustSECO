@@ -8,8 +8,8 @@
     "dev": "npx nodemon src/app.ts",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prod": "node build.js && npm run start",
-    "update-portal": "node build.js"
+    "update-portal": "node build.js",
+    "start-dlt": "tsc && node dist/dlt-process.js"
   },
   "repository": {
     "type": "git",
