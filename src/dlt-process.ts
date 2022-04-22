@@ -1,3 +1,6 @@
 import * as dlt from 'fides-dlt';
 
-dlt.start();
+if(require.main == module) {
+    dlt.start();
+    console.log('Started dlt');
+}
