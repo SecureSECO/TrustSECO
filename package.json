@@ -7,8 +7,7 @@
     "start": "tsc && node dist/app.js",
     "dev": "npx nodemon src/app.ts",
     "lint": "eslint . --ext .ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "update-portal": "node build.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
