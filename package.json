@@ -8,8 +8,7 @@
     "dev": "npx nodemon src/app.ts",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "update-portal": "node build.js",
-    "start-dlt": "tsc && node dist/dlt-process.js"
+    "update-portal": "node build.js"
   },
   "repository": {
     "type": "git",
@@ -36,7 +35,6 @@
     "adm-zip": "^0.5.9",
     "axios": "^0.26.1",
     "dotenv": "^16.0.0",
-    "fides-dlt": "Fides-UU/TrustSECO-DLT",
     "koa": "^2.13.4",
     "koa-router": "^10.1.1",
     "koa-static": "^5.0.0",
