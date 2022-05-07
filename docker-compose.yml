@@ -1,0 +1,18 @@
+version: "3.7"
+services:
+  web:
+    image: cosy-app
+    build: .
+    ports:
+      - "3000:3000"
+  dlt:
+    image: dlt-app
+    build: https://${GITHUB_USERNAME}:${GITHUB_API_TOKEN}@github.com/fides-uu/trustseco-dlt.git#main
+    ports:
+      - "8000:8000"
+      - "8080:8080"
+    volumes:
+      - ~/.lisk:/root/.lisk
+  spider:
+    image: spider-app
+    build: https://${GITHUB_USERNAME}:${GITHUB_API_TOKEN}@github.com/fides-uu/trustseco-spider.git#main

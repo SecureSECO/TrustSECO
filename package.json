@@ -5,6 +5,7 @@
   "main": "dist/app.js",
   "scripts": {
     "start": "tsc && node dist/app.js",
+    "dev": "npx nodemon src/app.ts",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,12 +20,24 @@
   },
   "homepage": "https://github.com/Fides-UU/TrustSECO-CoSy#readme",
   "devDependencies": {
+    "@types/koa-router": "^7.4.4",
     "@typescript-eslint/eslint-plugin": "^5.16.0",
     "@typescript-eslint/parser": "^5.16.0",
     "eslint": "^8.11.0",
     "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-typescript": "^3.0.0",
     "eslint-plugin-import": "^2.25.4",
-    "eslint-plugin-vue": "^8.5.0",
+    "nodemon": "^2.0.15",
     "typescript": "^4.6.2"
+  },
+  "dependencies": {
+    "adm-zip": "^0.5.9",
+    "axios": "^0.26.1",
+    "dotenv": "^16.0.0",
+    "koa": "^2.13.4",
+    "koa-router": "^10.1.1",
+    "koa-static": "^5.0.0",
+    "ts-node": "^10.7.0",
+    "ws": "^8.5.0"
   }
 }
