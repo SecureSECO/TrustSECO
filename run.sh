@@ -1,4 +1,6 @@
 #!/bin/bash
+set -o allexport; source .env; set +o allexport
+
 if [[ -z "${GITHUB_USERNAME}" ]]; then
   echo "Please provide a GITHUB_USERNAME in your .env file."
   exit 1
@@ -10,8 +12,6 @@ if [[ -z "${GITHUB_API_TOKEN}" ]]; then
 fi
 
 echo 'Starting up CoSy'
-
-set -o allexport; source .env; set +o allexport
 
 docker login ghcr.io -u $GITHUB_USERNAME -p $GITHUB_API_TOKEN
 docker-compose up
