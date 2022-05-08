@@ -5,8 +5,10 @@ const router: Router = new Router({
     prefix: '/spider',
 });
 
-router.get('/set_tokens', async (ctx, next) => {
-    const {data} = await axios.post('http://spider:5000/set_tokens', {
+const spider_endpoint = process.env.NODE_ENV === 'development' ? 'http://localhost:5000/' : 'http://spider:5000/';
+
+router.post('/set_tokens', async (ctx, next) => {
+    const {data} = await axios.post(`${spider_endpoint}/set_tokens`, {
         'github_token': 'gho_jeshfuehfhsjfe',
         'libraries_token': 'jdf9328bf87831bfdjs0823'
     });
@@ -14,22 +16,8 @@ router.get('/set_tokens', async (ctx, next) => {
     ctx.response.body = data;
 });
 
-router.get('/test', async (ctx, next) => {
-    const {data} = await axios.post('http://spider:5000/get_data', {
-        'project_info': {
-            'project_platform': 'Pypi',
-            'project_owner': 'numpy',
-            'project_name': 'numpy',
-            'project_release': 'v.1.22.1',
-            'project_year': 2021
-        },
-        'cve_data_points': [
-            'cve_count',
-            'cve_vulnerabilities',
-            'cve_codes'
-        ]
-    });
-
+router.post('/get_data', async (ctx, next) => {
+    const {data} = await axios.post(`${spider_endpoint}/get_data`, ctx.request.body);
     ctx.response.body = data;
 });
 
