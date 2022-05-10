@@ -5,6 +5,7 @@ import send from "koa-send";
 import cors from '@koa/cors'
 import koaBody from "koa-body";
 import 'dotenv/config'
+import {addJob, getJobs, getRandomJob} from "./services/dlt-service";
 
 const app = new Koa();
 
@@ -20,4 +21,8 @@ app.use(async (ctx, next) => {
 });
 
 app.listen(3000);
+
+(async function () {
+    console.log(await getRandomJob() );
+})();
 

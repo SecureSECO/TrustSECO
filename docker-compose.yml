@@ -13,11 +13,16 @@ services:
   dlt:
     image: dlt-app
     build: https://${GITHUB_USERNAME}:${GITHUB_API_TOKEN}@github.com/fides-uu/trustseco-dlt.git#main
+    networks:
+      - internal
     ports:
       - "8000:8000"
       - "8080:8080"
+      - "8001:8001"
     volumes:
       - ~/.lisk:/root/.lisk
+    environment:
+      HOSTNAME: 'localhost'
   spider:
     image: spider-app
     build: https://${GITHUB_USERNAME}:${GITHUB_API_TOKEN}@github.com/fides-uu/trustseco-spider.git#main
