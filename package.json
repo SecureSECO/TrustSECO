@@ -33,6 +33,7 @@
   "dependencies": {
     "@koa/cors": "^3.3.0",
     "@liskhq/lisk-client": "^5.2.2",
+    "@liskhq/lisk-api-client": "^5.1.6",
     "adm-zip": "^0.5.9",
     "axios": "^0.26.1",
     "dotenv": "^16.0.0",
@@ -40,6 +41,7 @@
     "koa-body": "^5.0.0",
     "koa-router": "^10.1.1",
     "koa-static": "^5.0.0",
+    "koa-send": "^5.0.1",
     "ts-node": "^10.7.0",
     "ws": "^8.5.0"
   }

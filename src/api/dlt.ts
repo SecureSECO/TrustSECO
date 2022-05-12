@@ -1,5 +1,5 @@
 import Router from 'koa-router';
-import {getJobs, getTrustFacts} from "../services/dlt-service";
+import { getJobs, getTrustFacts } from '../services/dlt-service';
 
 const router: Router = new Router({
     prefix: '/dlt',
@@ -14,7 +14,7 @@ router.get('/jobs', async (ctx, next) => {
 });
 
 router.get('/package/:id', (ctx, next) => {
-    const {id} = ctx.params;
+    const { id } = ctx.params;
     ctx.response.body = `Showing information for package ${id}`;
 });
 

@@ -16,6 +16,10 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
+    indent: [
+      'error',
+      4,
+    ],
     'import/extensions': [
       'error',
       'ignorePackages',
