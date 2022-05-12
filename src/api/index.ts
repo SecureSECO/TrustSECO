@@ -15,7 +15,7 @@ router.get('/', (ctx, next) => {
 });
 
 router.get('/download', (ctx, next) => {
-    ctx.response.body = 'Endpoint for downloading the software package.';
+    ctx.response.body = 'https://github.com/Fides-UU/TrustSECO-CoSy';
 });
 
 export default router;
