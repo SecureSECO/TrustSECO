@@ -6,9 +6,16 @@ const router: Router = new Router({
 });
 
 router.get('/', (ctx, next) => {
-    getWorker().on('message', (message) => {
+    const worker = getWorker();
+
+    worker.on('message', (message) => {
         // @ts-ignore
         ctx.websocket.send(message);
+    });
+
+    worker.on('exit', async () => {
+        // @ts-ignore
+        ctx.websocket.send('Spider has stopped.');
     });
 });
 

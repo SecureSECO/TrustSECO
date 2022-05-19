@@ -5,8 +5,9 @@ const router: Router = new Router({
     prefix: '/dlt',
 });
 
-router.get('/get-trust-facts', async (ctx, next) => {
-    ctx.response.body = await getTrustFacts();
+router.get('/trust-facts', async (ctx, next) => {
+    const { packageName } = ctx.query;
+    ctx.response.body = await getTrustFacts(<string>packageName);
 });
 
 router.get('/jobs', async (ctx, next) => {

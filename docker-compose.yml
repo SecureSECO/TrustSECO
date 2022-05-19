@@ -12,7 +12,7 @@ services:
       - /usr/src/app/public
   dlt:
     image: dlt-app
-    build: https://${GITHUB_USERNAME}:${GITHUB_API_TOKEN}@github.com/fides-uu/trustseco-dlt.git#main
+    build: https://${GITHUB_USERNAME}:${GITHUB_API_TOKEN}@github.com/fides-uu/trustseco-dlt.git#development
     networks:
       - internal
     ports:
@@ -28,6 +28,7 @@ services:
     build: https://${GITHUB_USERNAME}:${GITHUB_API_TOKEN}@github.com/fides-uu/trustseco-spider.git#main
     networks:
       - internal
+    stop_signal: SIGINT
 
 networks:
   internal:

@@ -1,5 +1,7 @@
 import Router from 'koa-router';
-import { setTokens, startSpider, stopSpider } from '../services/spider-service';
+import {
+    isRunning, setTokens, startSpider, stopSpider,
+} from '../services/spider-service';
 
 const router: Router = new Router({
     prefix: '/spider',
@@ -12,14 +14,18 @@ router.post('/set_tokens', async (ctx, next) => {
     });
 });
 
-router.get('/start', (ctx, next) => {
+router.post('/start', (ctx, next) => {
     startSpider();
-    ctx.response.body = 'Spider has been started.';
+    ctx.response.status = 200;
 });
 
-router.get('/stop', (ctx, next) => {
+router.post('/stop', (ctx, next) => {
     stopSpider();
-    ctx.response.body = 'Spider has been stopped.';
+    ctx.response.status = 200;
+});
+
+router.get('/status', async (ctx, next) => {
+    ctx.response.body = isRunning();
 });
 
 export default router;

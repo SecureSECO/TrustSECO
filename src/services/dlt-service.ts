@@ -1,7 +1,8 @@
-import { apiClient } from '@liskhq/lisk-client';
-import { RegisteredModule } from '@liskhq/lisk-api-client/dist-node/types';
-import { APIClient } from '@liskhq/lisk-api-client';
-import { Job } from '../types';
+import {apiClient} from '@liskhq/lisk-client';
+import {RegisteredModule} from '@liskhq/lisk-api-client/dist-node/types';
+import {APIClient} from '@liskhq/lisk-api-client';
+import {Job} from '../types';
+import 'dotenv/config';
 
 const DLT_ENDPOINT = process.env.NODE_ENV === 'development' ? 'ws://localhost:8080/ws' : 'ws://dlt:8080/ws';
 const passphrase = 'answer shrug among flat shaft virtual ceiling exit false arena type shoulder';
@@ -28,9 +29,11 @@ export async function getRandomJob(): Promise<Job> {
     return client.invoke('coda:getRandomJob');
 }
 
-export async function getTrustFacts(): Promise<unknown> {
+export async function getTrustFacts(packageName: string): Promise<unknown> {
     const client = await getClient();
-    return client.invoke('trustfacts:getFacts');
+    return client.invoke('trustfacts:getPackageInfo', {
+        packageName,
+    });
 }
 
 export async function addJob(job: Job): Promise<void> {
