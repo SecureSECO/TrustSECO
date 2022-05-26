@@ -15,6 +15,10 @@ export async function setTokens(tokens: Tokens): Promise<string> {
     return data;
 }
 
+export async function getTokens(): Promise<Tokens> {
+    return {};
+}
+
 export async function runJob(job: Job): Promise<unknown> {
     const { data } = await spider.post('get_data', job);
     return data;

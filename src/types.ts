@@ -8,3 +8,8 @@ export interface Tokens {
     github_token?: string,
     libraries_io_token?: string
 }
+
+export interface Keys {
+    publicKey: string,
+    privateKey: string
+}

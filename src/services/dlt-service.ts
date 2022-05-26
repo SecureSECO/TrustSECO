@@ -1,7 +1,7 @@
-import {apiClient} from '@liskhq/lisk-client';
-import {RegisteredModule} from '@liskhq/lisk-api-client/dist-node/types';
-import {APIClient} from '@liskhq/lisk-api-client';
-import {Job} from '../types';
+import { apiClient } from '@liskhq/lisk-client';
+import { RegisteredModule } from '@liskhq/lisk-api-client/dist-node/types';
+import { APIClient } from '@liskhq/lisk-api-client';
+import { Job } from '../types';
 import 'dotenv/config';
 
 const DLT_ENDPOINT = process.env.NODE_ENV === 'development' ? 'ws://localhost:8080/ws' : 'ws://dlt:8080/ws';
@@ -18,6 +18,14 @@ const getClient = async () => {
     }
     return clientCache;
 };
+
+export async function storeGitHubLink(link: string) {
+
+}
+
+export async function getGitHubLink() {
+
+}
 
 export async function getJobs(): Promise<Job[]> {
     const client = await getClient();

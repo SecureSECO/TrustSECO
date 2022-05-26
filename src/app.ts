@@ -6,7 +6,9 @@ import koaBody from 'koa-body';
 import websockify from 'koa-websocket';
 import apiRouter from './api';
 import websocketRouter from './websocket';
-import * as spiderService from './services/spider-service';
+import setup from './setup';
+
+setup();
 
 const app = websockify(new Koa());
 

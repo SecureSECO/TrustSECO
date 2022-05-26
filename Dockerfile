@@ -15,7 +15,9 @@ COPY --from=ghcr.io/fides-uu/trustseco-portal:latest /dist ./public
 
 EXPOSE 3000
 
-CMD [ "npm", "run", "start" ]
+RUN mkdir -p dist
+
+CMD [ "npm", "run", "dev" ]
 
 # Setup user
 USER node
