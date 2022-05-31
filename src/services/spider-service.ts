@@ -2,7 +2,7 @@ import axios from 'axios';
 import { Worker } from 'worker_threads';
 import { Job, Tokens } from '../types';
 
-const SPIDER_ENDPOINT = process.env.NODE_ENV === 'development' ? 'http://localhost:5000/' : 'http://spider:5000/';
+const SPIDER_ENDPOINT = 'http://spider:5000/';
 const spider = axios.create({
     baseURL: SPIDER_ENDPOINT,
 });
@@ -16,7 +16,8 @@ export async function setTokens(tokens: Tokens): Promise<string> {
 }
 
 export async function getTokens(): Promise<Tokens> {
-    return {};
+    const { data } = await spider.get('get_tokens');
+    return data;
 }
 
 export async function runJob(job: Job): Promise<unknown> {

@@ -1,4 +1,4 @@
-FROM node:16.15.0
+FROM node:16.14
 
 # Create app directory
 WORKDIR /home/node/app
@@ -15,10 +15,10 @@ COPY --from=ghcr.io/fides-uu/trustseco-portal:latest /dist ./public
 
 EXPOSE 3000
 
-RUN mkdir -p dist
-
-CMD [ "npm", "run", "dev" ]
-
 # Setup user
 USER node
+
+RUN mkdir -p dist
+
+CMD [ "npm", "run", "start" ]
 

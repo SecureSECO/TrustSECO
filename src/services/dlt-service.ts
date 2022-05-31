@@ -1,6 +1,7 @@
 import { apiClient } from '@liskhq/lisk-client';
 import { RegisteredModule } from '@liskhq/lisk-api-client/dist-node/types';
 import { APIClient } from '@liskhq/lisk-api-client';
+import fs from 'fs';
 import { Job } from '../types';
 import 'dotenv/config';
 
@@ -20,11 +21,17 @@ const getClient = async () => {
 };
 
 export async function storeGitHubLink(link: string) {
+    const toStore = {
+        github_link: link,
+    };
 
+    await fs.promises.writeFile('storage.json', JSON.stringify(toStore), 'utf8');
 }
 
 export async function getGitHubLink() {
-
+    const fileString = await fs.promises.readFile('storage.json', 'utf-8');
+    const storage = JSON.parse(fileString);
+    return storage.github_link;
 }
 
 export async function getJobs(): Promise<Job[]> {
