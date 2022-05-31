@@ -8,8 +8,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - .:/home/node/app
-      - /home/node/app/public
+      - ./src:/usr/app/src
+      - /usr/app/public
   dlt:
     image: dlt-app
     build: https://${GITHUB_USERNAME}:${GITHUB_API_TOKEN}@github.com/fides-uu/trustseco-dlt.git#development
