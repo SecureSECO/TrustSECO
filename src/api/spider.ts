@@ -29,7 +29,7 @@ router.get('/status', async (ctx, next) => {
     ctx.response.body = isRunning();
 });
 
-router.post('/get-tokens', async (ctx, next) => {
+router.get('/get-tokens', async (ctx, next) => {
     ctx.response.body = await getTokens();
 });
 
