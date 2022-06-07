@@ -5,7 +5,7 @@ import fs from 'fs';
 import { Job } from '../types';
 import 'dotenv/config';
 
-const DLT_ENDPOINT = process.env.NODE_ENV === 'development' ? 'ws://localhost:8080/ws' : 'ws://dlt:8080/ws';
+const DLT_ENDPOINT = 'ws://dlt:8080/ws';
 const passphrase = 'answer shrug among flat shaft virtual ceiling exit false arena type shoulder';
 
 let clientCache: APIClient;
@@ -29,6 +29,10 @@ export async function storeGitHubLink(link: string) {
 }
 
 export async function getGitHubLink() {
+    if (!fs.existsSync('storage.json')) {
+        return '';
+    }
+
     const fileString = await fs.promises.readFile('storage.json', 'utf-8');
     const storage = JSON.parse(fileString);
     return storage.github_link;
@@ -46,7 +50,7 @@ export async function getRandomJob(): Promise<Job> {
 
 export async function getTrustFacts(packageName: string): Promise<unknown> {
     const client = await getClient();
-    return client.invoke('trustfacts:getPackageInfo', {
+    return client.invoke('packagedata:getPackageInfo', {
         packageName,
     });
 }
@@ -75,6 +79,40 @@ export async function addTrustFact(trustFact): Promise<void> {
     }, passphrase);
 
     await client.transaction.send(transaction);
+}
+
+export async function getPackageData(packageName): Promise<string> {
+    const client = await getClient();
+    return client.invoke('packagedata:getPackageInfo', {
+        packageName,
+    });
+}
+
+export async function getPackagesData(): Promise<string> {
+    const client = await getClient();
+    return client.invoke('packagedata:getAllPackages');
+}
+
+export async function getMetrics() {
+    const packages = await getPackagesData();
+    const packageCount = packages.length;
+
+    const client = await getClient();
+    const nodeInfo = await client.node.getNodeInfo();
+    const blockHeight = nodeInfo.height;
+
+    const info = await client.node.getNetworkStats();
+    const peerInfo = {
+        connected: info.totalConnectedPeers,
+        disconnected: info.totalDisconnectedPeers,
+        banned: info.banning.count,
+    };
+
+    return {
+        'package-count': packageCount,
+        'block-height': blockHeight,
+        'peer-info': peerInfo,
+    };
 }
 
 async function loadTransactions() {

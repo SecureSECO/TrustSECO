@@ -23,8 +23,7 @@ let running = true;
 
         const job = await getRandomJob();
 
-        console.log(job);
-
+        parentPort.postMessage(`job : ${job}`);
         parentPort.postMessage(`Got random job for package ${job.package}`);
 
         const data = await runJob(job);
