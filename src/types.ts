@@ -6,7 +6,7 @@ export interface Job {
 
 export interface Tokens {
     github_token?: string,
-    libraries_io_token?: string
+    libraries_token?: string
 }
 
 export interface Keys {

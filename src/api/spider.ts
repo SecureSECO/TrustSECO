@@ -11,7 +11,7 @@ const router: Router = new Router({
 router.post('/set-tokens', async (ctx, next) => {
     ctx.response.body = await setTokens({
         github_token: ctx.request.body.github_token,
-        libraries_io_token: ctx.request.body.libraries_io_token,
+        libraries_token: ctx.request.body.libraries_token,
     });
 });
 
