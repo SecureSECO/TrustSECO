@@ -27,7 +27,7 @@ router.get('/get-github-link', async (ctx, next) => {
 });
 
 router.post('/add-job', async (ctx, next) => {
-    await addJob(ctx.body);
+    await addJob(ctx.request.body);
     ctx.response.body = 'Added job.';
 });
 
