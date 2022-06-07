@@ -88,13 +88,13 @@ export async function getPackageData(packageName): Promise<string> {
     });
 }
 
-export async function getPackagesData(): Promise<string> {
+export async function getPackagesData(): Promise<any> {
     const client = await getClient();
     return client.invoke('packagedata:getAllPackages');
 }
 
 export async function getMetrics() {
-    const packages = await getPackagesData();
+    const { packages } = await getPackagesData();
     const packageCount = packages.length;
 
     const client = await getClient();
@@ -109,9 +109,9 @@ export async function getMetrics() {
     };
 
     return {
-        'package-count': packageCount,
-        'block-height': blockHeight,
-        'peer-info': peerInfo,
+        package_count: packageCount,
+        block_height: blockHeight,
+        peer_info: peerInfo,
     };
 }
 
