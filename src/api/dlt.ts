@@ -8,7 +8,7 @@ const router: Router = new Router({
     prefix: '/dlt',
 });
 
-router.get('/trust-facts', async (ctx, next) => {
+router.get('/trust-facts/:packageName', async (ctx, next) => {
     const { packageName } = ctx.params;
     ctx.response.body = await getTrustFacts(packageName);
 });
