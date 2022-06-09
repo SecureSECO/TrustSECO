@@ -1,7 +1,7 @@
-FROM node:12.22.9
+FROM node:16.14
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /usr/app
 
 # Install app dependencies
 COPY package*.json ./
@@ -11,9 +11,11 @@ RUN npm install
 COPY . .
 
 # Copy portal files
-COPY --from=ghcr.io/fides-uu/trustseco-portal:latest /dist ./public
+COPY --from=ghcr.io/fides-uu/trustseco-portal:v1.2.0 /dist ./public
 
 EXPOSE 3000
 
-CMD [ "npm", "run", "dev" ]
+RUN mkdir -p dist
+
+CMD [ "npm", "run", "start" ]
 
