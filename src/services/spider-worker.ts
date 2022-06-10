@@ -1,7 +1,8 @@
 /* eslint-disable no-await-in-loop */
 import { parentPort } from 'worker_threads';
-import { addTrustFact, getRandomJob } from './dlt-service';
+import { addTrustFact, encode, getRandomJob } from './dlt-service';
 import { runJob, stopSpider } from './spider-service';
+import { getKeys, signMessage } from '../setup';
 
 let running = true;
 
@@ -12,37 +13,30 @@ let running = true;
         }
     });
 
-    const loopCount = 0;
-
     while (running) {
-        // Get job from DLT
-        // Send to spider
-        // Upload result to DLT
-
-        await sleep(5000);
-
         const job = await getRandomJob();
 
-        parentPort.postMessage(`job : ${job}`);
-        parentPort.postMessage(`Got random job for package ${job.package}`);
+        parentPort.postMessage(`Got random job for package ${job.packageName} with fact ${job.fact}`);
 
-        const data = await runJob(job);
+        const spiderResult = await runJob(job);
 
-        await addTrustFact(data);
+        const keys = await getKeys();
 
-        parentPort.postMessage(`Submitted data for package ${job.package}`);
+        const data = {
+            jobID: job.jobID,
+            factData: JSON.stringify(spiderResult),
+        };
 
-        await stopSpider();
+        const encoded = await encode(data, job.jobID);
 
-        /* parentPort.postMessage(`Got random job for package Numpy ${loopCount}`);
+        const signature = await signMessage(encoded, keys.id);
 
-        await sleep(5000);
+        await addTrustFact({
+            data,
+            signature,
+        });
 
-        parentPort.postMessage(`Submitted data for package Numpy ${loopCount}`);
-
-        await sleep(20000);
-
-        loopCount += 1; */
+        parentPort.postMessage(`Submitted data for package ${job.packageName}`);
     }
 
     process.exit(0);

@@ -1,52 +1,58 @@
-import { generateKeyPair } from 'crypto';
-import fs from 'fs';
+import { exec } from 'child_process';
 import { Keys } from './types';
 
-const KEY_DIRECTORY = 'keys';
-const PRIVATE_KEY_FILE = `${KEY_DIRECTORY}/gpg_rsa`;
-const PUBLIC_KEY_FILE = `${KEY_DIRECTORY}/gpg_rsa.pub`;
-const PASSWORD = '';
-
 function setup() {
-    if (!fs.existsSync(KEY_DIRECTORY)) {
-        generateKeys(PASSWORD).then((keys) => storeKeys(keys));
-    }
+    generateKeys();
 }
 
-const generateKeys = async (password) => new Promise<Keys>((resolve, reject) => {
-    generateKeyPair('rsa', {
-        modulusLength: 4096,
-        publicKeyEncoding: {
-            type: 'spki',
-            format: 'pem',
-        },
-        privateKeyEncoding: {
-            type: 'pkcs8',
-            format: 'pem',
-            cipher: 'aes-256-cbc',
-            passphrase: password,
-        },
-    }, (err, publicKey, privateKey) => {
-        if (err) return reject(err);
-        resolve({ publicKey, privateKey });
-        return undefined;
+const generateKeys = async () => new Promise<void>((resolve, reject) => {
+    exec('gpg --quick-generate-key --batch --passphrase "" root', (error, stdout, stderr) => {
+        resolve();
     });
 });
 
-function storeKeys(keys: Keys) {
-    fs.mkdirSync(KEY_DIRECTORY);
-    fs.writeFileSync(PUBLIC_KEY_FILE, keys.publicKey);
-    fs.writeFileSync(PRIVATE_KEY_FILE, keys.privateKey);
-}
+export const getKeys = async () => new Promise<Keys>((resolve, reject) => {
+    exec('gpg --list-secret-keys --with-colons root', (genExcep, genOut, genError) => {
+        if (genExcep || genError) {
+            reject();
+            return;
+        }
 
-export async function getKeys(): Promise<Keys> {
-    const privateKey = await fs.promises.readFile(PRIVATE_KEY_FILE, 'utf-8');
-    const publicKey = await fs.promises.readFile(PUBLIC_KEY_FILE, 'utf-8');
+        const id = genOut.split(':')[4];
 
-    return {
-        privateKey,
-        publicKey,
-    };
-}
+        exec(`gpg --armor --export ${id}`, (publicExc, publicKey, publicError) => {
+            if (publicExc || publicError) {
+                reject();
+                return;
+            }
+
+            exec(`gpg --armor --export-secret-key ${id}`, (privateExc, privateKey, privateErr) => {
+                if (privateExc || privateErr) {
+                    reject();
+                    return;
+                }
+
+                resolve({
+                    id,
+                    privateKey,
+                    publicKey,
+                });
+            });
+        });
+    });
+});
+
+export const signMessage = async (message, id) => new Promise<string>((resolve, reject) => {
+    exec(`gpg -u ${id} --sign --armor -o- <(printf '${message}')`, {
+        shell: '/bin/bash',
+    }, (exception, signature, error) => {
+        if (exception || error) {
+            reject();
+            return;
+        }
+
+        resolve(signature);
+    });
+});
 
 export default setup;

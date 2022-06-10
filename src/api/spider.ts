@@ -3,6 +3,7 @@ import {
     getTokens,
     isRunning, setTokens, startSpider, stopSpider,
 } from '../services/spider-service';
+import { getGitHubLink } from '../services/dlt-service';
 
 const router: Router = new Router({
     prefix: '/spider',
@@ -15,9 +16,36 @@ router.post('/set-tokens', async (ctx, next) => {
     });
 });
 
-router.post('/start', (ctx, next) => {
+router.get('/start', async (ctx, next) => {
+    const tokens = await getTokens();
+
+    if (!tokens.github_token || !tokens.libraries_token) {
+        ctx.response.status = 400;
+        ctx.response.body = {
+            success: false,
+            message: 'You have not set up your API tokens, please do so in the settings menu.',
+        };
+        return;
+    }
+
+    const githubLink = await getGitHubLink();
+
+    if (!githubLink) {
+        ctx.response.status = 400;
+        ctx.response.body = {
+            success: false,
+            message: 'You have not set up your GitHub link, please do so in the settings menu.',
+        };
+        return;
+    }
+
     startSpider();
+
     ctx.response.status = 200;
+    ctx.response.body = {
+        success: true,
+        message: 'Successfully started the spider.',
+    };
 });
 
 router.post('/stop', (ctx, next) => {

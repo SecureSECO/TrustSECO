@@ -2,11 +2,12 @@ import { apiClient } from '@liskhq/lisk-client';
 import { RegisteredModule } from '@liskhq/lisk-api-client/dist-node/types';
 import { APIClient } from '@liskhq/lisk-api-client';
 import fs from 'fs';
-import { Job } from '../types';
+import { Job, RandomJobResult } from '../types';
 import 'dotenv/config';
+import { getKeys } from '../setup';
 
 const DLT_ENDPOINT = 'ws://dlt:8080/ws';
-const passphrase = 'answer shrug among flat shaft virtual ceiling exit false arena type shoulder';
+const passphrase = 'spend banana immense earth smoke obey cousin decide trophy bomb lucky dial';
 
 let clientCache: APIClient;
 const registeredTransactions: { [name: string]: { moduleID: number, assetID: number } } = {};
@@ -26,6 +27,8 @@ export async function storeGitHubLink(link: string) {
     };
 
     await fs.promises.writeFile('storage.json', JSON.stringify(toStore), 'utf8');
+    const { id } = await getKeys();
+    await registerAccount(link, id);
 }
 
 export async function getGitHubLink() {
@@ -43,7 +46,7 @@ export async function getJobs(): Promise<Job[]> {
     return client.invoke('coda:getJobs');
 }
 
-export async function getRandomJob(): Promise<Job> {
+export async function getRandomJob(): Promise<RandomJobResult> {
     const client = await getClient();
     return client.invoke('coda:getRandomJob');
 }
@@ -113,6 +116,30 @@ export async function getMetrics() {
         block_height: blockHeight,
         peer_info: peerInfo,
     };
+}
+
+export async function encode(factData, jobID) {
+    const client = await getClient();
+    return client.invoke('trustfacts:encodeTrustFact', {
+        factData: JSON.stringify(factData), // TODO seems wrong
+        jobID,
+    });
+}
+
+export async function registerAccount(githubUrl, id) {
+    const client = await getClient();
+    const module = registeredTransactions['accounts:AccountsAdd'];
+    const transaction = await client.transaction.create({
+        moduleID: module.moduleID,
+        assetID: module.assetID,
+        fee: BigInt(1000000),
+        asset: {
+            url: githubUrl,
+            id,
+        },
+    }, passphrase);
+
+    await client.transaction.send(transaction);
 }
 
 async function loadTransactions() {

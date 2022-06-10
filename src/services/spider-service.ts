@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { Worker } from 'worker_threads';
-import { Job, Tokens } from '../types';
+import {
+    Job, RandomJobResult, SpiderJob, Tokens,
+} from '../types';
 
 const SPIDER_ENDPOINT = 'http://spider:5000/';
 const spider = axios.create({
@@ -20,8 +22,34 @@ export async function getTokens(): Promise<Tokens> {
     return data;
 }
 
-export async function runJob(job: Job): Promise<unknown> {
-    const { data } = await spider.post('get_data', job);
+export async function runJob(job: RandomJobResult): Promise<unknown> {
+    const spiderJob: SpiderJob = {
+        project_info: {
+            project_platform: job.packagePlatform,
+            project_owner: job.packageOwner,
+            project_name: job.packageName,
+            project_release: job.version,
+        },
+    };
+
+    switch (job.fact.split('_')[0]) {
+        case 'cve':
+            spiderJob.cve_data_points = [job.fact];
+            break;
+        case 'so':
+            spiderJob.so_data_points = [job.fact];
+            break;
+        case 'lib':
+            spiderJob.lib_data_points = [job.fact];
+            break;
+        case 'gh':
+            spiderJob.gh_data_points = [job.fact];
+            break;
+        default:
+            break;
+    }
+
+    const { data } = await spider.post('get_data', spiderJob);
     return data;
 }
 
