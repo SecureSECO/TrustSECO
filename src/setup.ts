@@ -13,7 +13,8 @@ const generateKeys = async () => new Promise<void>((resolve, reject) => {
 
 export const getKeys = async () => new Promise<Keys>((resolve, reject) => {
     exec('gpg --list-secret-keys --with-colons root', (genExcep, genOut, genError) => {
-        if (genExcep || genError) {
+        if (genExcep) {
+            console.log(genExcep);
             reject();
             return;
         }
@@ -21,13 +22,15 @@ export const getKeys = async () => new Promise<Keys>((resolve, reject) => {
         const id = genOut.split(':')[4];
 
         exec(`gpg --armor --export ${id}`, (publicExc, publicKey, publicError) => {
-            if (publicExc || publicError) {
+            if (publicExc) {
+                console.log(publicExc);
                 reject();
                 return;
             }
 
             exec(`gpg --armor --export-secret-key ${id}`, (privateExc, privateKey, privateErr) => {
-                if (privateExc || privateErr) {
+                if (privateExc) {
+                    console.log(privateExc);
                     reject();
                     return;
                 }
