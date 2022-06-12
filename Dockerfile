@@ -11,7 +11,7 @@ RUN npm install
 COPY . .
 
 # Copy portal files
-COPY --from=ghcr.io/fides-uu/trustseco-portal:v1.2.1 /dist ./public
+COPY --from=ghcr.io/fides-uu/trustseco-portal:latest /dist ./public
 
 EXPOSE 3000
 
