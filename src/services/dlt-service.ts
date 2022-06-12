@@ -53,7 +53,7 @@ export async function getRandomJob(): Promise<RandomJobResult> {
 
 export async function getTrustFacts(packageName: string): Promise<unknown> {
     const client = await getClient();
-    return client.invoke('packagedata:getPackageInfo', {
+    return client.invoke('trustfacts:getPackageFacts', {
         packageName,
     });
 }
