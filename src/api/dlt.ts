@@ -1,4 +1,5 @@
 import Router from 'koa-router';
+import axios from 'axios';
 import {
     getAccount,
     getGitHubLink, getJobs, getMetrics, getPackageData, getPackagesData, getTrustFacts, getTrustScore, storeGitHubLink,
@@ -43,6 +44,11 @@ router.post('/add-job', async (ctx, next) => {
 
 router.post('/store-github-link', async (ctx, next) => {
     await storeGitHubLink(ctx.request.body.data);
+    const { data } = await axios.create().get(ctx.request.body.data);
+    const storedOnGithub = data.contains("This user hasn't uploaded any GPG keys.");
+    ctx.response.body = {
+        stored_on_github: storedOnGithub,
+    };
     ctx.response.status = 200;
 });
 
