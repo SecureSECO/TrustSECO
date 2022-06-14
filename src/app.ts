@@ -6,7 +6,7 @@ import koaBody from 'koa-body';
 import websockify from 'koa-websocket';
 import apiRouter from './api';
 import websocketRouter from './websocket';
-import setup from './setup';
+import setup from './keys';
 
 setup();
 

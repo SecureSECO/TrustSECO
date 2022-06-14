@@ -48,7 +48,7 @@ router.get('/start', async (ctx, next) => {
     };
 });
 
-router.post('/stop', (ctx, next) => {
+router.get('/stop', (ctx, next) => {
     stopSpider();
     ctx.response.status = 200;
 });

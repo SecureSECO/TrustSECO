@@ -14,7 +14,7 @@ services:
 
   dlt:
     image: dlt-app
-    build: https://github.com/fides-uu/trustseco-dlt.git#main
+    build: https://github.com/fides-uu/trustseco-dlt.git#development
     restart: always
     networks:
       - internal

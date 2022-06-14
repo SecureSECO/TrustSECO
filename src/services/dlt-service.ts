@@ -2,12 +2,14 @@ import { apiClient } from '@liskhq/lisk-client';
 import { RegisteredModule } from '@liskhq/lisk-api-client/dist-node/types';
 import { APIClient } from '@liskhq/lisk-api-client';
 import fs from 'fs';
-import { Job, RandomJobResult } from '../types';
+import {
+    CodaJob, Job, PackageData, RandomJobResult,
+} from '../types';
 import 'dotenv/config';
-import { getKeys } from '../setup';
+import { getKeys } from '../keys';
 
 const DLT_ENDPOINT = 'ws://dlt:8080/ws';
-const passphrase = 'spend banana immense earth smoke obey cousin decide trophy bomb lucky dial';
+const passphrase = 'clinic dial armor leopard card cake letter matter planet erosion primary march';
 
 let clientCache: APIClient;
 const registeredTransactions: { [name: string]: { moduleID: number, assetID: number } } = {};
@@ -27,8 +29,7 @@ export async function storeGitHubLink(link: string) {
     };
 
     await fs.promises.writeFile('storage.json', JSON.stringify(toStore), 'utf8');
-    const { id } = await getKeys();
-    await registerAccount(link, id);
+    await registerAccount(link);
 }
 
 export async function getGitHubLink() {
@@ -58,7 +59,7 @@ export async function getTrustFacts(packageName: string): Promise<unknown> {
     });
 }
 
-export async function addJob(job: Job): Promise<void> {
+export async function addJob(job): Promise<void> {
     const client = await getClient();
     const module = registeredTransactions['coda:AddJob'];
     const transaction = await client.transaction.create({
@@ -96,6 +97,24 @@ export async function getPackagesData(): Promise<any> {
     return client.invoke('packagedata:getAllPackages');
 }
 
+export async function addPackageData(packageData: PackageData) : Promise<void> {
+    const client = await getClient();
+    const module = registeredTransactions['packagedata:AddPackageData'];
+    const transaction = await client.transaction.create({
+        moduleID: module.moduleID,
+        assetID: module.assetID,
+        fee: BigInt(1000000),
+        asset: packageData as unknown as Record<string, unknown>,
+    }, passphrase);
+
+    await client.transaction.send(transaction);
+}
+
+export async function getAllFacts() : Promise<string[]> {
+    const client = await getClient();
+    return client.invoke('coda:listAllFacts');
+}
+
 export async function getMetrics() {
     const { packages } = await getPackagesData();
     const packageCount = packages.length;
@@ -118,15 +137,27 @@ export async function getMetrics() {
     };
 }
 
-export async function encode(factData, jobID) {
+export async function encodeJob(codaJob: CodaJob) : Promise<string> {
     const client = await getClient();
-    return client.invoke('trustfacts:encodeTrustFact', {
-        factData: JSON.stringify(factData), // TODO seems wrong
+    return client.invoke('coda:encodeCodaJob', {
+        ...codaJob,
+    });
+}
+
+export async function encodeFact(factData, jobID) : Promise<string> {
+    const client = await getClient();
+    return client.invoke('coda:encodeCodaJob', {
+        factData: JSON.stringify(factData),
         jobID,
     });
 }
 
-export async function registerAccount(githubUrl, id) {
+export async function getMinimumBounty() : Promise<bigint> {
+    const client = await getClient();
+    return client.invoke('coda:getMinimumRequiredBounty');
+}
+
+export async function registerAccount(githubUrl) {
     const client = await getClient();
     const module = registeredTransactions['accounts:AccountsAdd'];
     const transaction = await client.transaction.create({
@@ -135,11 +166,26 @@ export async function registerAccount(githubUrl, id) {
         fee: BigInt(1000000),
         asset: {
             url: githubUrl,
-            id,
         },
     }, passphrase);
 
     await client.transaction.send(transaction);
+}
+
+export async function getTrustScore(id, version) : Promise<number> {
+    const client = await getClient();
+    return client.invoke('trustfacts:getScore', {
+        id,
+        version,
+    });
+}
+
+export async function getAccount() : Promise<any> {
+    const { id } = await getKeys();
+    const client = await getClient();
+    return client.invoke('accounts:getAccount', {
+        uid: id,
+    });
 }
 
 async function loadTransactions() {

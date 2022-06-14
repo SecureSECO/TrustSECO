@@ -1,8 +1,10 @@
 import Router from 'koa-router';
 import {
-    addJob, getGitHubLink, getJobs, getMetrics, getPackageData, getPackagesData, getTrustFacts, storeGitHubLink,
+    getAccount,
+    getGitHubLink, getJobs, getMetrics, getPackageData, getPackagesData, getTrustFacts, getTrustScore, storeGitHubLink,
 } from '../services/dlt-service';
-import { getKeys } from '../setup';
+import { getKeys } from '../keys';
+import addAllJobs from '../services/add-job-service';
 
 const router: Router = new Router({
     prefix: '/dlt',
@@ -27,8 +29,16 @@ router.get('/get-github-link', async (ctx, next) => {
 });
 
 router.post('/add-job', async (ctx, next) => {
-    await addJob(ctx.request.body);
-    ctx.response.body = 'Added job.';
+    const {
+        name, owner, platform, release,
+    } = ctx.request.body;
+    await addAllJobs({
+        packageName: name,
+        packagePlatform: platform,
+        packageOwner: owner,
+        packageReleases: [release],
+    });
+    ctx.response.body = 'Added jobs.';
 });
 
 router.post('/store-github-link', async (ctx, next) => {
@@ -47,6 +57,15 @@ router.get('/package/:id', async (ctx, next) => {
 
 router.get('/metrics', async (ctx, next) => {
     ctx.response.body = await getMetrics();
+});
+
+router.get('/package/:id/trustscore/:version', async (ctx, next) => {
+    const { id, version } = ctx.params;
+    ctx.response.body = await getTrustScore(id, version);
+});
+
+router.get('/account', async (ctx, next) => {
+    ctx.response.body = await getAccount();
 });
 
 export default router;

@@ -19,7 +19,7 @@ export const getKeys = async () => new Promise<Keys>((resolve, reject) => {
             return;
         }
 
-        const id = genOut.split(':')[4];
+        let id = genOut.split(':')[4];
 
         exec(`gpg --armor --export ${id}`, (publicExc, publicKey, publicError) => {
             if (publicExc) {
@@ -34,6 +34,8 @@ export const getKeys = async () => new Promise<Keys>((resolve, reject) => {
                     reject();
                     return;
                 }
+
+                id = id.slice(-16);
 
                 resolve({
                     id,

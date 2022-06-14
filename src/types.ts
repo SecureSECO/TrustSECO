@@ -7,6 +7,20 @@ export interface Job {
     jobID: string,
 }
 
+export interface PackageData {
+    packageName: string,
+    packagePlatform: string,
+    packageOwner: string,
+    packageReleases: string[],
+}
+
+export interface CodaJob {
+    package: string,
+    version: string,
+    fact: string,
+    bounty: bigint,
+}
+
 export interface RandomJobResult {
     package: string,
     version: string,

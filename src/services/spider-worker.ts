@@ -1,8 +1,10 @@
 /* eslint-disable no-await-in-loop */
 import { parentPort } from 'worker_threads';
-import { addTrustFact, encode, getRandomJob } from './dlt-service';
+import {
+    addTrustFact, encodeFact, getRandomJob,
+} from './dlt-service';
 import { runJob, stopSpider } from './spider-service';
-import { getKeys, signMessage } from '../setup';
+import { getKeys, signMessage } from '../keys';
 
 let running = true;
 
@@ -27,7 +29,7 @@ let running = true;
             factData: JSON.stringify(spiderResult),
         };
 
-        const encoded = await encode(data, job.jobID);
+        const encoded = await encodeFact(data, job.jobID);
 
         const signature = await signMessage(encoded, keys.id);
 

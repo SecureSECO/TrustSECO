@@ -13,4 +13,4 @@ echo 'Starting up TrustSECO'
 
 pat=$(echo 'Z2hwX0JSR3UxQjR1eWlKa1RLVFk4ZjI2Q0JZejZHZDduUTJQV3JDOAo=' | base64 -d)
 echo $pat | docker login ghcr.io -u "TrustSECO-Machine-User" --password-stdin
-docker-compose up
+docker-compose up --build

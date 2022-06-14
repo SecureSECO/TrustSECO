@@ -17,5 +17,5 @@ EXPOSE 3000
 
 RUN mkdir -p dist
 
-CMD [ "npm", "run", "start" ]
+CMD [ "npm", "run", "dev" ]
 
