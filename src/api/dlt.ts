@@ -45,7 +45,7 @@ router.post('/add-job', async (ctx, next) => {
 router.post('/store-github-link', async (ctx, next) => {
     await storeGitHubLink(ctx.request.body.data);
     const { data } = await axios.create().get(ctx.request.body.data);
-    const storedOnGithub = data.contains("This user hasn't uploaded any GPG keys.");
+    const storedOnGithub = !data.includes("This user hasn't uploaded any GPG keys.");
     ctx.response.body = {
         stored_on_github: storedOnGithub,
     };
