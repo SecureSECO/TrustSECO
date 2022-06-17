@@ -23,7 +23,7 @@ services:
       - "8080:8080"
       - "8001:8001"
     volumes:
-      - ~/.lisk:/root/.lisk
+      - TrustSECO:/root/.lisk
     environment:
       HOSTNAME: 'localhost'
       RESET_ON_VERSION_MISMATCH: 1

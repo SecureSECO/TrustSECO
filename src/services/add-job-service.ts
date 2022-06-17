@@ -6,10 +6,8 @@ import { CodaJob, PackageData } from '../types';
 import { getKeys, signMessage } from '../keys';
 
 export default async function addAllJobs(packageData: PackageData) {
-    console.log('Adding package data');
     await addPackageData(packageData);
 
-    console.log('Getting all facts');
     const facts = await getAllFacts();
 
     for (let j = 0; j < packageData.packageReleases.length; j += 1) {
@@ -25,7 +23,7 @@ export default async function addAllJobs(packageData: PackageData) {
                 package: packageData.packageName,
                 version,
                 fact,
-                bounty,
+                bounty: '1000',
             };
 
             const encoded = await encodeJob(data);

@@ -112,7 +112,8 @@ export async function addPackageData(packageData: PackageData) : Promise<void> {
 
 export async function getAllFacts() : Promise<string[]> {
     const client = await getClient();
-    return client.invoke('coda:listAllFacts');
+    const facts: any[] = await client.invoke('coda:listAllFacts');
+    return facts.flatMap((o) => o.facts);
 }
 
 export async function getMetrics() {
@@ -144,15 +145,12 @@ export async function encodeJob(codaJob: CodaJob) : Promise<string> {
     });
 }
 
-export async function encodeFact(factData, jobID) : Promise<string> {
+export async function encodeFact(data) : Promise<string> {
     const client = await getClient();
-    return client.invoke('coda:encodeCodaJob', {
-        factData: JSON.stringify(factData),
-        jobID,
-    });
+    return client.invoke('trustfacts:encodeTrustFact', data);
 }
 
-export async function getMinimumBounty() : Promise<bigint> {
+export async function getMinimumBounty() : Promise<string> {
     const client = await getClient();
     return client.invoke('coda:getMinimumRequiredBounty');
 }
@@ -163,7 +161,7 @@ export async function registerAccount(githubUrl) {
     const transaction = await client.transaction.create({
         moduleID: module.moduleID,
         assetID: module.assetID,
-        fee: BigInt(1000000),
+        fee: BigInt(10000000),
         asset: {
             url: githubUrl,
         },
@@ -174,7 +172,7 @@ export async function registerAccount(githubUrl) {
 
 export async function getTrustScore(id, version) : Promise<number> {
     const client = await getClient();
-    return client.invoke('trustfacts:getScore', {
+    return client.invoke('trustfacts:calculateTrustScore', {
         id,
         version,
     });
