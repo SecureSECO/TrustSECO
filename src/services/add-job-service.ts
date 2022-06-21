@@ -1,9 +1,17 @@
 /* eslint-disable no-await-in-loop */
+import { passphrase } from '@liskhq/lisk-client';
 import {
-    addJob, addPackageData, encodeJob, getAllFacts, getMinimumBounty,
+    encodeJob,
+    getAllFacts,
+    getClient,
+    getMinimumBounty,
+    getModule,
+    getPackageData,
+    getPassphrase,
 } from './dlt-service';
 import { CodaJob, PackageData } from '../types';
 import { getKeys, signMessage } from '../keys';
+import { addToHeap } from './queue-service';
 
 // @ts-ignore
 // eslint-disable-next-line no-extend-native
@@ -12,7 +20,22 @@ BigInt.prototype.toJSON = function () {
 };
 
 export default async function addAllJobs(packageData: PackageData) {
-    await addPackageData(packageData);
+    const client = await getClient();
+
+    const packageModule = getModule('packagedata:AddPackageData');
+    const packageTransaction = {
+        moduleID: packageModule.moduleID,
+        assetID: packageModule.assetID,
+        fee: BigInt(1000000),
+        asset: packageData as unknown as Record<string, unknown>,
+    };
+
+    addToHeap({
+        name: 'AddPackage',
+        created_at: performance.now(),
+        priority: 10,
+        transaction: packageTransaction,
+    });
 
     const facts = await getAllFacts();
 
@@ -38,10 +61,33 @@ export default async function addAllJobs(packageData: PackageData) {
 
             const signature = await signMessage(encoded, keys.id);
 
-            await addJob({
+            const job = {
                 data,
                 signature,
+            };
+
+            const module = getModule('coda:AddJob');
+            const transaction = {
+                moduleID: module.moduleID,
+                assetID: module.assetID,
+                fee: BigInt(10000000),
+                asset: job as unknown as Record<string, unknown>,
+            };
+
+            addToHeap({
+                name: 'AddJob',
+                created_at: performance.now(),
+                priority: 100,
+                transaction,
             });
+
+            break;
         }
     }
+}
+
+function sleep(ms) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
 }

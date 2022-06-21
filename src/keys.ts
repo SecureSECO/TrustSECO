@@ -1,6 +1,9 @@
 import { exec } from 'child_process';
 import fs from 'fs';
+import { promisify } from 'util';
 import { Keys } from './types';
+
+const exec$ = promisify(exec);
 
 function setup() {
     generateKeys();
@@ -50,18 +53,28 @@ export const getKeys = async () => new Promise<Keys>((resolve, reject) => {
 
 export async function signMessage(message, id) {
     const random = Math.random().toString().slice(2);
+
     await fs.promises.writeFile(`/tmp/data-${random}`, message);
+    await exec$(`gpg -u ${id} --detach-sign --armor /tmp/data-${random}`);
 
-    return new Promise<string>((resolve, reject) => {
-        exec(`gpg -u ${id} --detach-sign --armor -o- /tmp/data-${random}`, (exception, signature, error) => {
-            if (exception || error) {
-                reject();
-                return;
-            }
+    const path = `/tmp/data-${random}.asc`;
+    const signature = await fs.promises.readFile(path, 'utf-8');
 
-            resolve(signature);
-        });
-    });
+    await fs.promises.unlink(path);
+
+    return signature;
 }
+
+/* export const signMessage = async (message, id) => new Promise<string>((resolve, reject) => {
+    exec(`gpg -u ${id} --detach-sign --armor -o- <(printf '${message}')`, {
+        shell: '/bin/bash',
+    }, (exception, signature, error) => {
+        if (exception) {
+            reject();
+            return;
+        }
+        resolve(signature);
+    });
+}); */
 
 export default setup;

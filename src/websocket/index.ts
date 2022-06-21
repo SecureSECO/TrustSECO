@@ -1,21 +1,21 @@
 import Router from 'koa-router';
-import { getWorker } from '../services/spider-service';
+import { getEmitter, getHeapSize } from '../services/queue-service';
 
 const router: Router = new Router({
     prefix: '/websocket',
 });
 
 router.get('/', (ctx, next) => {
-    const worker = getWorker();
+    // TODO: Rework
+});
 
-    worker.on('message', (message) => {
-        // @ts-ignore
-        ctx.websocket.send(message);
-    });
+router.get('/get-queue-size', (ctx, next) => {
+    // @ts-ignore
+    ctx.websocket.send(`test${getHeapSize()}`);
 
-    worker.on('exit', async () => {
+    getEmitter().on('pushed', (data) => {
         // @ts-ignore
-        ctx.websocket.send('Spider has stopped.');
+        ctx.websocket.send(data);
     });
 });
 

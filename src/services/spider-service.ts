@@ -1,16 +1,16 @@
+/* eslint-disable no-await-in-loop */
 import axios from 'axios';
-import { Worker } from 'worker_threads';
 import {
     Job, RandomJobResult, SpiderJob, Tokens,
 } from '../types';
+import { encodeFact, getModule, getRandomJob } from './dlt-service';
+import { getKeys } from '../keys';
+import { addToHeap } from './queue-service';
 
 const SPIDER_ENDPOINT = 'http://spider:5000/';
 const spider = axios.create({
     baseURL: SPIDER_ENDPOINT,
 });
-
-let worker: Worker;
-let workerRunning = false;
 
 export async function setTokens(tokens: Tokens): Promise<string> {
     const { data } = await spider.post('set_tokens', tokens);
@@ -53,32 +53,67 @@ export async function runJob(job: RandomJobResult): Promise<unknown> {
     return data;
 }
 
-export function startSpider(): void {
-    workerRunning = true;
-    worker = new Worker(`${__dirname}/spider-worker.js`);
+let running = false;
 
-    worker.on('message', (result) => {
-        console.log(result);
-    });
+export async function startSpider() {
+    running = true;
+    while (running) {
+        const job = await getRandomJob();
 
-    worker.on('error', (error) => {
-        console.error(error);
-    });
+        if (job.packageName === undefined) {
+            await sleep(30 * 1000);
+            // eslint-disable-next-line no-continue
+            continue;
+        }
 
-    worker.on('exit', (exitCode) => {
-        console.log(`It exited with code ${exitCode}`);
-    });
+        const spiderResult = await runJob(job);
+
+        const dataPoint = spiderResult[job.fact];
+
+        const keys = await getKeys();
+
+        const data = {
+            jobID: job.jobID,
+            factData: JSON.stringify(dataPoint),
+        };
+
+        const encoded = await encodeFact(data);
+
+        const trustFact = {
+            data,
+            signature: '--',
+        };
+
+        // const signature = await signMessage(encoded, keys.id);
+
+        const module = getModule('trustfacts:AddFacts');
+        const transaction = {
+            moduleID: module.moduleID,
+            assetID: module.assetID,
+            fee: BigInt(100000000),
+            asset: trustFact as unknown as Record<string, unknown>,
+        };
+
+        addToHeap({
+            transaction,
+            created_at: performance.now(),
+            priority: 200,
+        });
+
+        await sleep(1200000);
+    }
 }
 
-export function stopSpider(): void {
-    workerRunning = false;
-    worker.postMessage({ exit: true });
+export function stopSpider() {
+    running = false;
+}
+
+function sleep(ms) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
 }
 
 export function isRunning(): boolean {
-    return workerRunning;
-}
-
-export function getWorker(): Worker {
-    return worker;
+    return running;
 }

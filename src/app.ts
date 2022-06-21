@@ -7,8 +7,13 @@ import websockify from 'koa-websocket';
 import apiRouter from './api';
 import websocketRouter from './websocket';
 import setup from './keys';
+import { startQueue } from './services/queue-service';
 
 setup();
+(async () => {
+    await sleep(5000);
+    await startQueue();
+})();
 
 const app = websockify(new Koa());
 
@@ -25,3 +30,9 @@ app.use(serve('./public'));
 app.use(async (ctx, next) => send(ctx, 'public/index.html'));
 
 app.listen(3000);
+
+function sleep(ms) {
+    return new Promise((resolve) => {
+        setTimeout(resolve, ms);
+    });
+}

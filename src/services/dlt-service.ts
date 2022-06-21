@@ -1,20 +1,21 @@
-import { apiClient } from '@liskhq/lisk-client';
+import { apiClient, transactions } from '@liskhq/lisk-client';
 import { RegisteredModule } from '@liskhq/lisk-api-client/dist-node/types';
 import { APIClient } from '@liskhq/lisk-api-client';
 import fs from 'fs';
 import {
-    CodaJob, Job, PackageData, RandomJobResult,
+    CodaJob, Job, RandomJobResult,
 } from '../types';
 import 'dotenv/config';
 import { getKeys } from '../keys';
+import { addToHeap } from './queue-service';
 
 const DLT_ENDPOINT = 'ws://dlt:8080/ws';
-const passphrase = 'clinic dial armor leopard card cake letter matter planet erosion primary march';
+export const getPassphrase = () => 'knife discover test lizard trend phone state song reject organ gown left';
 
 let clientCache: APIClient;
 const registeredTransactions: { [name: string]: { moduleID: number, assetID: number } } = {};
 
-const getClient = async () => {
+export const getClient = async () => {
     if (!clientCache) {
         clientCache = await apiClient.createWSClient(DLT_ENDPOINT);
         // eslint-disable-next-line no-use-before-define
@@ -29,7 +30,23 @@ export async function storeGitHubLink(link: string) {
     };
 
     await fs.promises.writeFile('storage.json', JSON.stringify(toStore), 'utf8');
-    await registerAccount(link);
+
+    const module = registeredTransactions['accounts:AccountsAdd'];
+    const transaction = {
+        moduleID: module.moduleID,
+        assetID: module.assetID,
+        fee: BigInt(10000000),
+        asset: {
+            url: link,
+        },
+    };
+
+    addToHeap({
+        transaction,
+        name: 'AccountsAdd',
+        priority: 5,
+        created_at: performance.now(),
+    });
 }
 
 export async function getGitHubLink() {
@@ -59,30 +76,8 @@ export async function getTrustFacts(packageName: string): Promise<unknown> {
     });
 }
 
-export async function addJob(job): Promise<void> {
-    const client = await getClient();
-    const module = registeredTransactions['coda:AddJob'];
-    const transaction = await client.transaction.create({
-        moduleID: module.moduleID,
-        assetID: module.assetID,
-        fee: BigInt(1000000000),
-        asset: job as unknown as Record<string, unknown>,
-    }, passphrase);
-
-    await client.transaction.send(transaction);
-}
-
-export async function addTrustFact(trustFact): Promise<void> {
-    const client = await getClient();
-    const module = registeredTransactions['trustfacts:AddFacts'];
-    const transaction = await client.transaction.create({
-        moduleID: module.moduleID,
-        assetID: module.assetID,
-        fee: BigInt(1000000),
-        asset: trustFact as unknown as Record<string, unknown>,
-    }, passphrase);
-
-    await client.transaction.send(transaction);
+export function getModule(name: string) {
+    return registeredTransactions[name];
 }
 
 export async function getPackageData(packageName): Promise<string> {
@@ -95,19 +90,6 @@ export async function getPackageData(packageName): Promise<string> {
 export async function getPackagesData(): Promise<any> {
     const client = await getClient();
     return client.invoke('packagedata:getAllPackages');
-}
-
-export async function addPackageData(packageData: PackageData) : Promise<void> {
-    const client = await getClient();
-    const module = registeredTransactions['packagedata:AddPackageData'];
-    const transaction = await client.transaction.create({
-        moduleID: module.moduleID,
-        assetID: module.assetID,
-        fee: BigInt(1000000),
-        asset: packageData as unknown as Record<string, unknown>,
-    }, passphrase);
-
-    await client.transaction.send(transaction);
 }
 
 export async function getAllFacts() : Promise<string[]> {
@@ -155,21 +137,6 @@ export async function getMinimumBounty() : Promise<string> {
     return client.invoke('coda:getMinimumRequiredBounty');
 }
 
-export async function registerAccount(githubUrl) {
-    const client = await getClient();
-    const module = registeredTransactions['accounts:AccountsAdd'];
-    const transaction = await client.transaction.create({
-        moduleID: module.moduleID,
-        assetID: module.assetID,
-        fee: BigInt(10000000),
-        asset: {
-            url: githubUrl,
-        },
-    }, passphrase);
-
-    await client.transaction.send(transaction);
-}
-
 export async function getTrustScore(id, version) : Promise<number> {
     const client = await getClient();
     return client.invoke('trustfacts:calculateTrustScore', {
@@ -184,6 +151,19 @@ export async function getAccount() : Promise<any> {
     return client.invoke('accounts:getAccount', {
         uid: id,
     });
+}
+
+export async function runTransaction(transaction: Record<string, unknown>) {
+    const client = await getClient();
+    await client.transaction.send(transaction);
+}
+
+export async function getMinFee(transaction) {
+    const client = await getClient();
+    // eslint-disable-next-line no-param-reassign
+    transaction.fee = BigInt(transactions.convertLSKToBeddows('1'));
+    const signedTxWithSomeFee = await client.transaction.create(transaction, getPassphrase());
+    return client.transaction.computeMinFee(signedTxWithSomeFee);
 }
 
 async function loadTransactions() {

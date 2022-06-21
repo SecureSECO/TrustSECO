@@ -1,3 +1,5 @@
+import { Transaction } from '@liskhq/lisk-api-client/dist-node/transaction';
+
 export interface Job {
     packageName: string,
     packagePlatform: string,
@@ -59,4 +61,11 @@ export interface Keys {
     id: string,
     publicKey: string,
     privateKey: string
+}
+
+export interface QueueTransaction {
+    name?: string,
+    priority: number,
+    created_at: number,
+    transaction: Record<string, unknown>
 }
