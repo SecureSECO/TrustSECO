@@ -65,7 +65,7 @@ export async function addJob(job): Promise<void> {
     const transaction = await client.transaction.create({
         moduleID: module.moduleID,
         assetID: module.assetID,
-        fee: BigInt(1000000),
+        fee: BigInt(1000000000),
         asset: job as unknown as Record<string, unknown>,
     }, passphrase);
 

@@ -10,7 +10,7 @@ services:
       - "3000:3000"
     volumes:
       - ./src:/usr/app/src
-      - TrustSECO:/root/.gpupq
+      - TrustSECO:/root/.gnupg
 
   dlt:
     image: dlt-app
@@ -24,9 +24,12 @@ services:
       - "8001:8001"
     volumes:
       - TrustSECO:/root/.lisk
+      - TrustSECO:/root/.gnupg
     environment:
       HOSTNAME: 'localhost'
       RESET_ON_VERSION_MISMATCH: 1
+      ACCEPT_BAD_SIGNATURES: 1
+      ACCEPT_INSUFFICIENT_BOUNTY: 1
 
   spider:
     image: spider-app

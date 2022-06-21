@@ -5,6 +5,12 @@ import {
 import { CodaJob, PackageData } from '../types';
 import { getKeys, signMessage } from '../keys';
 
+// @ts-ignore
+// eslint-disable-next-line no-extend-native
+BigInt.prototype.toJSON = function () {
+    return this.toString();
+};
+
 export default async function addAllJobs(packageData: PackageData) {
     await addPackageData(packageData);
 
@@ -23,7 +29,7 @@ export default async function addAllJobs(packageData: PackageData) {
                 package: packageData.packageName,
                 version,
                 fact,
-                bounty: '1000',
+                bounty: BigInt(bounty),
             };
 
             const encoded = await encodeJob(data);

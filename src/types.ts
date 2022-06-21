@@ -18,7 +18,7 @@ export interface CodaJob {
     package: string,
     version: string,
     fact: string,
-    bounty: string,
+    bounty: bigint,
 }
 
 export interface RandomJobResult {
