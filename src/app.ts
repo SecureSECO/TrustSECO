@@ -10,7 +10,7 @@ import setup from './keys';
 
 setup();
 
-const app = websockify(new Koa());
+const app = new Koa();
 
 app.use(cors()).use(koaBody());
 
@@ -18,7 +18,7 @@ app.use(cors()).use(koaBody());
 app.use(apiRouter.routes()).use(apiRouter.allowedMethods());
 
 // Websocket routes
-app.ws.use(websocketRouter.routes()).use(websocketRouter.allowedMethods());
+// app.ws.use(websocketRouter.routes()).use(websocketRouter.allowedMethods());
 
 // Portal serving
 app.use(serve('./public'));

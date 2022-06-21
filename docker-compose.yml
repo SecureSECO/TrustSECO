@@ -30,6 +30,7 @@ services:
       RESET_ON_VERSION_MISMATCH: 1
       ACCEPT_BAD_SIGNATURES: 1
       ACCEPT_INSUFFICIENT_BOUNTY: 1
+      ACCEPT_INVALID_ACCOUNT: 1
 
   spider:
     image: spider-app
