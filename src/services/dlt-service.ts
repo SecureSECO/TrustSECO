@@ -94,7 +94,7 @@ export async function getPackagesData(): Promise<any> {
 
 export async function getAllFacts() : Promise<string[]> {
     const client = await getClient();
-    const facts: any[] = await client.invoke('coda:listAllFacts');
+    const facts: any[] = await client.invoke('coda:getAllFacts');
     return facts.flatMap((o) => o.facts);
 }
 
