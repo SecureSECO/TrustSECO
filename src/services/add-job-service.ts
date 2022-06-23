@@ -20,8 +20,6 @@ BigInt.prototype.toJSON = function () {
 };
 
 export default async function addAllJobs(packageData: PackageData) {
-    const client = await getClient();
-
     const packageModule = getModule('packagedata:AddPackageData');
     const packageTransaction = {
         moduleID: packageModule.moduleID,
@@ -80,14 +78,6 @@ export default async function addAllJobs(packageData: PackageData) {
                 priority: 100,
                 transaction,
             });
-
-            break;
         }
     }
-}
-
-function sleep(ms) {
-    return new Promise((resolve) => {
-        setTimeout(resolve, ms);
-    });
 }

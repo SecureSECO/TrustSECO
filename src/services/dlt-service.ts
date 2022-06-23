@@ -10,7 +10,7 @@ import { getKeys } from '../keys';
 import { addToHeap } from './queue-service';
 
 const DLT_ENDPOINT = 'ws://dlt:8080/ws';
-export const getPassphrase = () => 'knife discover test lizard trend phone state song reject organ gown left';
+export const getPassphrase = () => 'wat het nu is ofzo maakt me echt niet uit';
 
 let clientCache: APIClient;
 const registeredTransactions: { [name: string]: { moduleID: number, assetID: number } } = {};
@@ -65,8 +65,11 @@ export async function getJobs(): Promise<Job[]> {
 }
 
 export async function getRandomJob(): Promise<RandomJobResult> {
+    const { id } = await getKeys();
     const client = await getClient();
-    return client.invoke('coda:getRandomJob');
+    return client.invoke('coda:getRandomJob', {
+        uid: id,
+    });
 }
 
 export async function getTrustFacts(packageName: string): Promise<unknown> {
@@ -94,7 +97,7 @@ export async function getPackagesData(): Promise<any> {
 
 export async function getAllFacts() : Promise<string[]> {
     const client = await getClient();
-    const facts: any[] = await client.invoke('coda:listAllFacts');
+    const facts: any[] = await client.invoke('coda:getAllFacts');
     return facts.flatMap((o) => o.facts);
 }
 

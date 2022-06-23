@@ -65,7 +65,7 @@ router.get('/metrics', async (ctx, next) => {
     ctx.response.body = await getMetrics();
 });
 
-router.get('/package/:id/trustscore/:version', async (ctx, next) => {
+router.get('/package/:id/trust-score/:version', async (ctx, next) => {
     const { id, version } = ctx.params;
     ctx.response.body = await getTrustScore(id, version);
 });

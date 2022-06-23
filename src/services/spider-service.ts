@@ -1,13 +1,15 @@
-/* eslint-disable no-await-in-loop */
+/* eslint-disable no-await-in-loop,no-continue */
 import axios from 'axios';
+import Emitter from 'node:events';
 import {
     Job, RandomJobResult, SpiderJob, Tokens,
 } from '../types';
 import { encodeFact, getModule, getRandomJob } from './dlt-service';
-import { getKeys } from '../keys';
+import { getKeys, signMessage } from '../keys';
 import { addToHeap } from './queue-service';
 
 const SPIDER_ENDPOINT = 'http://spider:5000/';
+const emitter = new Emitter();
 const spider = axios.create({
     baseURL: SPIDER_ENDPOINT,
 });
@@ -20,6 +22,10 @@ export async function setTokens(tokens: Tokens): Promise<string> {
 export async function getTokens(): Promise<Tokens> {
     const { data } = await spider.get('get_tokens');
     return data;
+}
+
+export function getSpiderEmitter(): Emitter {
+    return emitter;
 }
 
 export async function runJob(job: RandomJobResult): Promise<unknown> {
@@ -58,33 +64,46 @@ let running = false;
 export async function startSpider() {
     running = true;
     while (running) {
-        const job = await getRandomJob();
+        let job;
 
-        if (job.packageName === undefined) {
+        try {
+            job = await getRandomJob();
+            emitter.emit('info', `Got Spider job for package ${job.packageName} with fact ${job.fact}`);
+        } catch (e) {
+            emitter.emit('info', 'No Spider job available! Sleeping for 30 sec.');
             await sleep(30 * 1000);
-            // eslint-disable-next-line no-continue
             continue;
         }
+
+        emitter.emit('info', `Got Spider job for package ${job.packageName} with fact ${job.fact}`);
 
         const spiderResult = await runJob(job);
 
         const dataPoint = spiderResult[job.fact];
 
+        if (dataPoint === null) {
+            emitter.emit('info', `The spider returned null for ${job.fact}! Finding a new job!`);
+            await sleep(5 * 1000);
+            continue;
+        }
+
+        emitter.emit('info', `The ${job.fact} for ${job.packageName} is ${dataPoint}`);
+
         const keys = await getKeys();
 
         const data = {
             jobID: job.jobID,
-            factData: JSON.stringify(dataPoint),
+            factData: dataPoint,
         };
 
         const encoded = await encodeFact(data);
 
+        const signature = await signMessage(encoded, keys.id);
+
         const trustFact = {
             data,
-            signature: '--',
+            signature,
         };
-
-        // const signature = await signMessage(encoded, keys.id);
 
         const module = getModule('trustfacts:AddFacts');
         const transaction = {
@@ -94,13 +113,16 @@ export async function startSpider() {
             asset: trustFact as unknown as Record<string, unknown>,
         };
 
+        emitter.emit('info', 'Finished job, adding to dlt queue!');
+
         addToHeap({
             transaction,
             created_at: performance.now(),
             priority: 200,
+            name: 'fact',
         });
 
-        await sleep(1200000);
+        await sleep(30 * 1000);
     }
 }
 

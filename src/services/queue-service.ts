@@ -14,7 +14,7 @@ export function addToHeap(transaction: QueueTransaction) {
     emitter.emit('pushed', heap.size());
 }
 
-export function getEmitter() {
+export function getQueueEmitter() {
     return emitter;
 }
 
@@ -42,8 +42,7 @@ export async function startQueue() {
             const transaction = await client.transaction.create(queueTransaction.transaction, getPassphrase());
             await runTransaction(transaction);
         } catch (e) {
-            console.log('Encountered error, adding to back of queue');
-            heap.add(queueTransaction);
+            console.log('Encountered error, if you believe this was a mistake, please run task again.');
         }
     });
 }
