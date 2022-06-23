@@ -1,8 +1,8 @@
-// three Priority queueu met comparer type van transactie, trustfacts voorrang en tijd
 import Heap from 'heap-js';
 import Emitter from 'node:events';
 import { QueueTransaction } from '../types';
 import {
+    getAccount,
     getClient, getMinFee, getPassphrase, runTransaction,
 } from './dlt-service';
 
@@ -22,29 +22,45 @@ export function getHeapSize() {
     return heap.size();
 }
 
+export function clearQueue() {
+    heap.clear();
+}
+
 export async function startQueue() {
     const client = await getClient();
 
     client.subscribe('app:block:new', async (event) => {
-        if (heap.isEmpty()) {
+        await consumeFromHeap(client);
+    });
+}
+
+async function consumeFromHeap(client) {
+    if (heap.isEmpty()) {
+        return;
+    }
+
+    const queueTransaction = heap.pop();
+
+    console.log(`Running transaction: ${queueTransaction.name}`);
+
+    try {
+        // @ts-ignore
+        const bounty = queueTransaction.transaction.asset?.bounty;
+        const { slingers } = await getAccount();
+
+        if (bounty > slingers) {
+            console.log('Not enough tokens to run this transaction, skipping...');
+            await consumeFromHeap(client);
             return;
         }
 
-        const queueTransaction = heap.pop();
-
-        console.log(`Running transaction: ${queueTransaction.name}`);
-
-        try {
-            // @ts-ignore
-            const minFee = getMinFee(queueTransaction.transaction);
-            queueTransaction.transaction.fee = minFee;
-            // @ts-ignore
-            const transaction = await client.transaction.create(queueTransaction.transaction, getPassphrase());
-            await runTransaction(transaction);
-        } catch (e) {
-            console.log('Encountered error, if you believe this was a mistake, please run task again.');
-        }
-    });
+        const minFee = await getMinFee(queueTransaction.transaction);
+        queueTransaction.transaction.fee = minFee;
+        const transaction = await client.transaction.create(queueTransaction.transaction, getPassphrase());
+        await runTransaction(transaction);
+    } catch (e) {
+        console.log('Encountered error, if you believe this was a mistake, please run task again.');
+    }
 }
 
 function comparator(a: QueueTransaction, b: QueueTransaction) {

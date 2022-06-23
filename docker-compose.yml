@@ -4,6 +4,8 @@ services:
     image: cosy-app
     build: .
     restart: always
+    depends_on:
+      - dlt
     networks:
       - internal
     ports:

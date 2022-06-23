@@ -1,6 +1,7 @@
 import Router from 'koa-router';
 import dltRouter from './dlt';
 import spiderRouter from './spider';
+import { clearQueue } from '../services/queue-service';
 
 const router: Router = new Router({
     prefix: '/api',
@@ -16,6 +17,11 @@ router.get('/', (ctx, next) => {
 
 router.get('/download', (ctx, next) => {
     ctx.response.body = 'https://github.com/Fides-UU/TrustSECO-CoSy';
+});
+
+router.get('/clear-queue', (ctx, next) => {
+    clearQueue();
+    ctx.response.body = 'Queue has been cleared.';
 });
 
 export default router;
