@@ -140,10 +140,10 @@ export async function getMinimumBounty() : Promise<string> {
     return client.invoke('coda:getMinimumRequiredBounty');
 }
 
-export async function getTrustScore(id, version) : Promise<number> {
+export async function getTrustScore(packageName, version) : Promise<number> {
     const client = await getClient();
     return client.invoke('trustfacts:calculateTrustScore', {
-        id,
+        packageName,
         version,
     });
 }
