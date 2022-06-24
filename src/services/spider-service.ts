@@ -94,7 +94,7 @@ export async function startSpider() {
 
         const data = {
             jobID: job.jobID,
-            factData: dataPoint.toString(),
+            factData: JSON.stringify(dataPoint),
         };
 
         const encoded = await encodeFact(data);
