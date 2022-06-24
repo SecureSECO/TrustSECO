@@ -66,6 +66,7 @@ export async function getJobs(): Promise<Job[]> {
 
 export async function getRandomJob(): Promise<RandomJobResult> {
     const { id } = await getKeys();
+    console.log(id);
     const client = await getClient();
     return client.invoke('coda:getRandomJob', {
         uid: id,

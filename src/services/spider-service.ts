@@ -70,6 +70,7 @@ export async function startSpider() {
             job = await getRandomJob();
             emitter.emit('info', `Got Spider job for package ${job.packageName} with fact ${job.fact}`);
         } catch (e) {
+            console.log(e);
             emitter.emit('info', 'No Spider job available! Sleeping for 30 sec.');
             await sleep(30 * 1000);
             continue;
@@ -81,7 +82,7 @@ export async function startSpider() {
 
         const dataPoint = spiderResult[job.fact];
 
-        if (dataPoint === null) {
+        if (dataPoint === undefined || dataPoint === null) {
             emitter.emit('info', `The spider returned null for ${job.fact}! Finding a new job!`);
             await sleep(5 * 1000);
             continue;
